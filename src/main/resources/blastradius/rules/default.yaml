@@ -528,7 +528,7 @@ rules:
 
 - id: safe-read-only-commands
   applies_to: [shell_command]
-  pattern: '^\s*(?:ls|pwd|whoami|date|which|echo|git\s+(?:status|log|diff|show|branch)|npm\s+(?:test|run\s+(?:test|lint|build))|pytest|python3?\s+-m\s+pytest|cargo\s+(?:test|check|build)|mvn\s+(?:-q\s+)?(?:test|package))(?:\s+[\w./=:@-]+)*\s*$'
+  pattern: '^\s*(?:ls|pwd|whoami|date|which|echo|git\b(?:\s+-C\s+\S+)?\s+(?:status|log|diff|show|branch)|npm\s+(?:test|run\s+(?:test|lint|build))|pytest|python3?\s+-m\s+pytest|cargo\s+(?:test|check|build)|mvn\s+(?:-q\s+)?(?:test|package))(?:\s+[\w./=:@"-]+)*\s*$'
   severity: safe
   what: Runs a common command that only looks at things or runs your project's own tests and builds.
   why: These commands do not change anything outside the project, so there is nothing unusual to flag.

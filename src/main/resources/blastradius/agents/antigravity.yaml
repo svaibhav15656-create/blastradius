@@ -27,10 +27,11 @@ prompts:
   verified: true
   detect: '(?i)(?:Allow\s+(?:run\s+)?[^?\n]*\?|Do\s+you\s+want\s+to\s+proceed\?|Run\s+command\?)'
   target:
-    - '(?s)(?i)\?\s*\n\s*(?<target>(?:git|rm|Remove-Item|Stop-Process|Set-|iex|iwr|curl|cat|dir|ls|mvn|npm|cargo|node|python)[^\n]*?(?:\n[^\n]+?)*?)\s*\n\s*1\s*Yes'
+    # Most reliable: extract from the always-allow quoted option (single line, full command even if card wraps)
+    - '(?s)(?i)always allow\s*[''"`](?<target>.+?)[''"`]\s+in this conversation'
     - '(?s)(?i)always allow\s*[''"`](?<target>.+?)[''"`]'
-    - '(?s)(?i)always allow\s+(?<target>.+?)\s+in this conversation'
-    - '(?s)commands that start with\s*[''"`](?<target>.+?)[''"`]'
+    # Fallback: multi-line block between ? and "1 Yes"
+    - '(?s)(?i)\?\s*\n\s*(?<target>(?:git|rm|Remove-Item|Stop-Process|Set-|iex|iwr|curl|cat|dir|ls|mvn|npm|cargo|node|python)[^\n]*?(?:\n[^\n]+?)*?)\s*\n\s*1\s*Yes'
     - '(?s)(?i)\?\s*\n\s*(?<target>[^\n]+(?:\n[^\n]+)*?)\s*\n\s*1\s*Yes'
     - '(?m)^\s*\$\s+(?<target>\S.*?)\s*$'
 
