@@ -1,0 +1,5 @@
+Do you want to proceed?
+1. Yes
+2. Yes, and always allow in this conversation for commands that start with 'git push --force'
+3. Yes, and always allow for commands that start with 'git push --force' (Persist to settings.json)
+4. No

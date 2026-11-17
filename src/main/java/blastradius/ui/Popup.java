@@ -121,7 +121,8 @@ public final class Popup {
         w.pack();
 
         Rectangle area = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
-        w.setLocation(area.x + area.width - w.getWidth() - 16, area.y + area.height - w.getHeight() - 16);
+        // Top-right corner so it never covers bottom-right IDE approval cards or terminal prompts.
+        w.setLocation(area.x + area.width - w.getWidth() - 24, area.y + 32);
         w.setVisible(true);
         window = w;
 

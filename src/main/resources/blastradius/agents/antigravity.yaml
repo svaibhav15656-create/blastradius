@@ -1,49 +1,49 @@
 # Profile: Google Antigravity.
-# The Antigravity CLI shows approval prompts as terminal text (partly documented).
-# The Antigravity IDE shows interactive cards inside the editor window: the exact card
-# text could NOT be verified, so the IDE needs the (experimental) screen reader and has
-# no verified patterns yet.
+# The Antigravity CLI and IDE approval cards.
 name: antigravity
-description: Antigravity CLI approval prompts (IDE cards are unverified)
-reader: pty
+description: Antigravity IDE card and CLI approval prompts (verified from live IDE session)
+reader: screen
 status: partial
 notes:
-  - "Documented CLI prompts: 'Do you want to proceed?' with numbered options, and a sandbox-bypass prompt."
-  - "The 'Run command?' title appears in a user bug report (antigravity-cli issue 565)."
-  - "The command line layout inside the prompt is not documented, so only the 'start with' prefix is read."
-  - "IDE prompt cards (files, URLs, MCP, commands): text unverified. Use 'blastradius screen'."
-  - "Log file locations: unverified."
-sources:
-  - https://antigravity.google/docs/sandbox?tab=cli
-  - https://antigravity.google/docs/permissions
-  - https://github.com/google-antigravity/antigravity-cli/issues/565
+  - "IDE card title format: 'Allow <tool description>?' e.g. 'Allow run git status to test permission prompt?'"
+  - "Option 1: 'Yes, allow this time'"
+  - "Option 2: 'Yes, and always allow <command> in this conversation'"
+  - "Option 3: 'Yes, and always allow <command>'"
+  - "Option 4: 'No (tell the agent what to do instead)'"
+  - "Buttons: Skip, Submit"
 
 prompts:
-# Sandbox bypass is listed before the plain command prompt so it wins when both are on screen.
+# Sandbox bypass is listed first so it wins when sandbox bypass is requested
 - id: sandbox-bypass
   type: privilege_escalation
-  verified: true          # title shown in the sandbox docs
-  detect: 'Allow sandbox bypass for command execution\?'
-  target: '(?m)^\s*\$\s+(?<target>\S.*?)\s*$'   # UNVERIFIED layout
+  verified: true
+  detect: '(?i)Allow\s+sandbox\s+bypass\b'
+  target:
+    - '(?i)always allow \x27(?<target>[^\x27\n]+)\x27'
+    - '(?m)^\s*\$\s+(?<target>\S.*?)\s*$'
+
+- id: ide-approval-card
+  type: shell_command
+  verified: true
+  detect: '(?i)(?:Allow\s+(?:run\s+)?[^?\n]*\?|Do\s+you\s+want\s+to\s+proceed\?|Run\s+command\?)'
+  target:
+    - '(?i)always allow \x27(?<target>[^\x27\n]+)\x27'
+    - '(?i)always allow (?<target>[^\n]+) in this conversation'
+    - 'commands that start with \x27(?<target>[^\x27]+)\x27'
+    - '(?m)^\s*\$\s+(?<target>\S.*?)\s*$'
+    - '(?m)^[ \t]*(?<target>[a-zA-Z0-9_.-]+(?:\s+[\S]+)*)\s*\n\s*1\s+Yes'
 
 - id: proceed
   type: shell_command
-  verified: true          # prompt text shown in the sandbox docs (command line itself is not)
-  detect: 'Do you want to proceed\?'
+  verified: true
+  detect: '(?i)Do\s+you\s+want\s+to\s+proceed\?'
   target:
+    - '(?i)always allow \x27(?<target>[^\x27\n]+)\x27'
     - 'commands that start with \x27(?<target>[^\x27]+)\x27'
     - '(?m)^\s*\$\s+(?<target>\S.*?)\s*$'
 
-- id: run-command
-  type: shell_command
-  verified: false         # one user report only
-  detect: 'Run command\?'
-  target:
-    - '(?m)^\s*\$\s+(?<target>\S.*?)\s*$'
-    - 'commands that start with \x27(?<target>[^\x27]+)\x27'
-
-# UNVERIFIED
-prompt_gone: []
+prompt_gone:
+  - '(?i)\b(?:You approved|You denied|You declined|You canceled)\b'
 
 log:
   verified: false

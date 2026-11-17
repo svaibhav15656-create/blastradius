@@ -1,0 +1,4 @@
+This is a build log.
+Compiling 42 source files...
+Tests passed: 100/100
+Build successful.

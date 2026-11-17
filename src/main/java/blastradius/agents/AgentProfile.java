@@ -44,7 +44,7 @@ public record AgentProfile(
     public record PromptSpec(
             String id, RequestType type, Pattern detect, List<Pattern> targets, boolean verified, boolean targetBefore) {}
 
-    public static final List<String> BUILTIN = List.of("codex", "antigravity", "generic");
+    public static final List<String> BUILTIN = List.of("codex", "antigravity", "cursor", "claudecode", "generic");
 
     private static final Pattern SAFE_NAME = Pattern.compile("[a-z0-9_-]+");
 
@@ -95,12 +95,10 @@ public record AgentProfile(
     /** Pick a profile name from the agent's executable, falling back to "generic". */
     public static String guessFor(String executable) {
         String base = Path.of(executable).getFileName().toString().toLowerCase(Locale.ROOT);
-        if (base.startsWith("codex")) {
-            return "codex";
-        }
-        if (base.contains("antigravity")) {
-            return "antigravity";
-        }
+        if (base.startsWith("codex"))       return "codex";
+        if (base.contains("antigravity"))   return "antigravity";
+        if (base.contains("cursor"))        return "cursor";
+        if (base.contains("claude"))        return "claudecode";
         return "generic";
     }
 

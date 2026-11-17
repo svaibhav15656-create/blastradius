@@ -1,0 +1,27 @@
+# Profile: Claude Code (Anthropic CLI agent) terminal command approval.
+# status: unverified — patterns derived from public docs and community reports.
+name: claudecode
+description: Claude Code CLI agent command approval prompts (unverified)
+reader: screen
+status: unverified
+notes:
+  - "Claude Code typically asks for permission before running shell commands."
+  - "The exact prompt text has not been captured from a live session."
+  - "Use 'blastradius start' (screen reader) for Claude Code."
+
+prompts:
+- id: execute-command
+  type: shell_command
+  verified: false
+  detect: '(?i)(?:Do you want to execute|Confirm command execution|Allow command\b)'
+  target:
+    - '(?m)^\s*\$\s+(?<target>\S.*?)\s*$'
+    - '`(?<target>[^`\n]{3,})`'
+    - '(?i)command\s*:\s*`?(?<target>[^`\n]{3,})`?'
+
+prompt_gone:
+  - '(?i)\b(?:approved|denied|rejected|cancell?ed|declined|running)\b'
+
+log:
+  verified: false
+  paths: []

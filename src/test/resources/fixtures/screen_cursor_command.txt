@@ -1,0 +1,3 @@
+Execute terminal command?
+Command: `Remove-Item -Recurse -Force .\dist`
+Allow    Deny

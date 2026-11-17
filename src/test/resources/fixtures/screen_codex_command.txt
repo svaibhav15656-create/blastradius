@@ -1,0 +1,5 @@
+Would you like to run the following command?
+$ npm run deploy -- --env production
+1. Yes
+2. No
+3. Always allow

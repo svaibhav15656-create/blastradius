@@ -1,0 +1,36 @@
+# Profile: Cursor AI coding agent (terminal command approval).
+# status: unverified — patterns derived from Cursor's documented behaviour and community
+#         reports. Replace with verified captures from your own Cursor sessions.
+name: cursor
+description: Cursor AI agent terminal command approval prompts (unverified)
+reader: screen
+status: unverified
+notes:
+  - "Cursor typically shows a card in the IDE asking to run a terminal command."
+  - "The card wording has not been captured from a live session; patterns are heuristic."
+  - "Use 'blastradius start' (screen reader) rather than 'blastradius run' for Cursor."
+
+prompts:
+- id: run-command
+  type: shell_command
+  verified: false
+  detect: '(?i)(?:Execute|Run)\s+(?:terminal\s+)?command\?|Allow\s+(?:the\s+)?command\s+to\s+run|terminal command execution'
+  target:
+    - '(?m)^\s*\$\s+(?<target>\S.*?)\s*$'
+    - '`(?<target>[^`\n]{3,})`'
+    - '(?i)(?:Command|Run|Execute)\s*:\s*`?(?<target>[^`\n]{3,})`?'
+
+- id: approve-action
+  type: unknown
+  verified: false
+  detect: '(?i)Approve\s+(?:this\s+)?(?:command|action|change)\b'
+  target:
+    - '(?m)^\s*\$\s+(?<target>\S.*?)\s*$'
+    - '`(?<target>[^`\n]{3,})`'
+
+prompt_gone:
+  - '(?i)\b(?:approved|denied|rejected|cancell?ed|declined)\b'
+
+log:
+  verified: false
+  paths: []

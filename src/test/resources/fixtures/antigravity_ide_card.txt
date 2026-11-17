@@ -1,0 +1,7 @@
+Allow run git status to test permission prompt?
+git status
+1  Yes, allow this time
+2  Yes, and always allow 'git status' in this conversation
+3  Yes, and always allow 'git status'
+4  No (tell the agent what to do instead)
+Skip  Submit

@@ -167,7 +167,7 @@ class ExplainerTest {
 
     @Test
     void userCanDisableARule() throws Exception {
-        Config cfg = new Config(PROJECT, Set.of("sudo"), Map.of(), List.of(), 60);
+        Config cfg = new Config(PROJECT, Set.of("sudo"), Map.of(), List.of(), 60, false);
         Explainer ex = Explainer.load(cfg);
         Explanation e = ex.explain(PARSER.parseFreeText("test", "sudo apt install jq"));
         assertNotEquals("sudo", e.ruleId());
@@ -175,7 +175,7 @@ class ExplainerTest {
 
     @Test
     void userCanChangeASeverity() throws Exception {
-        Config cfg = new Config(PROJECT, Set.of(), Map.of("read-env-file", Severity.CRITICAL), List.of(), 60);
+        Config cfg = new Config(PROJECT, Set.of(), Map.of("read-env-file", Severity.CRITICAL), List.of(), 60, false);
         Explainer ex = Explainer.load(cfg);
         assertEquals(Severity.CRITICAL, ex.explain(PARSER.parseFreeText("test", "cat .env")).severity());
     }
@@ -190,7 +190,7 @@ class ExplainerTest {
                 "what", "Tears down infrastructure.",
                 "why", "Real servers and data can be removed.",
                 "affects", List.of("system"));
-        Explainer ex = Explainer.load(new Config(PROJECT, Set.of(), Map.of(), List.of(rule), 60));
+        Explainer ex = Explainer.load(new Config(PROJECT, Set.of(), Map.of(), List.of(rule), 60, false));
         Explanation e = ex.explain(PARSER.parseFreeText("test", "terraform destroy -auto-approve"));
         assertEquals("my-terraform", e.ruleId());
         assertEquals(Severity.CRITICAL, e.severity());
@@ -199,7 +199,7 @@ class ExplainerTest {
     @Test
     void badUserRuleIsReportedNotThrown() throws Exception {
         Map<String, Object> bad = Map.of("id", "broken", "applies_to", List.of("shell"), "pattern", "([unclosed");
-        Explainer ex = Explainer.load(new Config(PROJECT, Set.of(), Map.of(), List.of(bad), 60));
+        Explainer ex = Explainer.load(new Config(PROJECT, Set.of(), Map.of(), List.of(bad), 60, false));
         assertEquals(1, ex.loadErrors().size());
         assertTrue(ex.loadErrors().get(0).startsWith("rule broken"));
     }

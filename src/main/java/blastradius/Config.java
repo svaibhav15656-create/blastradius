@@ -16,6 +16,7 @@ import java.util.Set;
  *
  * <pre>
  * timeout_seconds: 60        # popup auto-close (0 = never)
+ * show_safe: false           # set true to show green popups for SAFE commands too (default false)
  * disable: [sudo]            # rule ids to switch off
  * severity: {read-env-file: critical}
  * rules:                     # extra rules, same schema as rules/default.yaml, checked first
@@ -33,13 +34,14 @@ public record Config(
         Set<String> disabledRules,
         Map<String, Severity> severityOverrides,
         List<Map<String, Object>> extraRules,
-        int timeoutSeconds) {
+        int timeoutSeconds,
+        boolean showSafe) {
 
     public static final int DEFAULT_TIMEOUT_SECONDS = 60;
     public static final String FILE_NAME = ".blastradius.yaml";
 
     public static Config defaults(Path projectDir) {
-        return new Config(projectDir, Set.of(), Map.of(), List.of(), DEFAULT_TIMEOUT_SECONDS);
+        return new Config(projectDir, Set.of(), Map.of(), List.of(), DEFAULT_TIMEOUT_SECONDS, true);
     }
 
     /** Loads settings; a missing or broken file is ignored (fail silently). */
@@ -48,6 +50,7 @@ public record Config(
         Map<String, Severity> sev = new HashMap<>();
         List<Map<String, Object>> extra = new ArrayList<>();
         int timeout = DEFAULT_TIMEOUT_SECONDS;
+        boolean showSafe = true;
 
         Path home = Path.of(System.getProperty("user.home", "."));
         for (Path f : List.of(home.resolve(FILE_NAME), projectDir.resolve(FILE_NAME))) {
@@ -56,7 +59,8 @@ public record Config(
                     continue;
                 }
                 Map<String, Object> y = Yamls.readFile(f);
-                timeout = Yamls.integer(y.get("timeout_seconds"), timeout);
+                timeout  = Yamls.integer(y.get("timeout_seconds"), timeout);
+                showSafe = Yamls.bool(y.get("show_safe"), showSafe);
                 disabled.addAll(Yamls.strList(y.get("disable")));
                 for (Map.Entry<String, Object> e : Yamls.map(y.get("severity")).entrySet()) {
                     sev.put(e.getKey(), Severity.valueOf(String.valueOf(e.getValue()).toUpperCase()));
@@ -66,6 +70,6 @@ public record Config(
                 // bad user config must never break the agent
             }
         }
-        return new Config(projectDir, disabled, sev, extra, timeout);
+        return new Config(projectDir, disabled, sev, extra, timeout, showSafe);
     }
 }
