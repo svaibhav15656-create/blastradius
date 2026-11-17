@@ -1,0 +1,6 @@
+Would you like to make the following edits?
+
+  src/App.java (+3 -1)
+
+\xe2\x80\xba 1. Yes, proceed (y)
+  2. No, and tell Codex what to do differently (esc)

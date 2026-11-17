@@ -1,0 +1,53 @@
+# Profile: OpenAI Codex CLI (terminal UI).
+# status: partial  -> prompt titles checked against Codex's open-source TUI as quoted by
+#                     third-party sources (Nov 2026). Never run against every Codex version.
+name: codex
+description: OpenAI Codex CLI approval prompts (terminal UI)
+reader: pty
+status: partial
+notes:
+  - "Prompt titles come from Codex's approval overlay; wording may change between versions."
+  - "Codex draws a full-screen TUI, so text is rebuilt from cursor moves. Layout is heuristic."
+  - "Rollout logs live in $CODEX_HOME/sessions/YYYY/MM/DD/rollout-*.jsonl, but no approval-request"
+  - "event format could be confirmed (sources disagree), so log detection is UNVERIFIED."
+sources:
+  - https://github.com/openai/codex/issues/22181   # shows the command prompt and its 3 options
+  - https://docs.rs/crate/batty-cli/latest/source/src/prompt/mod.rs
+  - https://forge.lthn.ai/core/core-agent-ide/commit/3164670101fa873923dcc78a2d7e707c1a32fd1e
+
+prompts:
+- id: command
+  type: shell_command
+  verified: true          # title + "$ command" line shown in a real prompt (issue #22181)
+  detect: 'Would you like to run the following command\?'
+  target: '^\s*\$\s+(?<target>\S.*?)\s*$'
+
+- id: edits
+  type: file_edit
+  verified: true          # title verified
+  detect: 'Would you like to make the following edits\?'
+  # target: UNVERIFIED layout of the diff summary; best-effort guess.
+  target: '^\s*[•›]?\s*(?:Edited|Added|Updated|Modified)\s+(?<target>\S+)'
+
+- id: network
+  type: network_access
+  verified: true          # title text seen in two independent sources (wording differs slightly)
+  detect: 'Do you want to approve (?:network )?access to "[^"]+"\?'
+  target: 'approve (?:network )?access to "(?<target>[^"]+)"'
+
+- id: mcp
+  type: tool_call
+  verified: false         # single source only
+  detect: '^.+ needs your approval\.'
+  target: '^(?<target>.+?) needs your approval\.'
+
+# UNVERIFIED: how Codex looks after you answer. Timeout in the popup is the safety net.
+prompt_gone:
+  - 'You approved'
+  - 'You canceled'
+  - 'You declined'
+
+log:
+  verified: false
+  paths:
+    - '$CODEX_HOME/sessions'

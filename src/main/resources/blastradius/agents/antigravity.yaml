@@ -1,0 +1,50 @@
+# Profile: Google Antigravity.
+# The Antigravity CLI shows approval prompts as terminal text (partly documented).
+# The Antigravity IDE shows interactive cards inside the editor window: the exact card
+# text could NOT be verified, so the IDE needs the (experimental) screen reader and has
+# no verified patterns yet.
+name: antigravity
+description: Antigravity CLI approval prompts (IDE cards are unverified)
+reader: pty
+status: partial
+notes:
+  - "Documented CLI prompts: 'Do you want to proceed?' with numbered options, and a sandbox-bypass prompt."
+  - "The 'Run command?' title appears in a user bug report (antigravity-cli issue 565)."
+  - "The command line layout inside the prompt is not documented, so only the 'start with' prefix is read."
+  - "IDE prompt cards (files, URLs, MCP, commands): text unverified. Use 'blastradius screen'."
+  - "Log file locations: unverified."
+sources:
+  - https://antigravity.google/docs/sandbox?tab=cli
+  - https://antigravity.google/docs/permissions
+  - https://github.com/google-antigravity/antigravity-cli/issues/565
+
+prompts:
+# Sandbox bypass is listed before the plain command prompt so it wins when both are on screen.
+- id: sandbox-bypass
+  type: privilege_escalation
+  verified: true          # title shown in the sandbox docs
+  detect: 'Allow sandbox bypass for command execution\?'
+  target: '(?m)^\s*\$\s+(?<target>\S.*?)\s*$'   # UNVERIFIED layout
+
+- id: proceed
+  type: shell_command
+  verified: true          # prompt text shown in the sandbox docs (command line itself is not)
+  detect: 'Do you want to proceed\?'
+  target:
+    - 'commands that start with \x27(?<target>[^\x27]+)\x27'
+    - '(?m)^\s*\$\s+(?<target>\S.*?)\s*$'
+
+- id: run-command
+  type: shell_command
+  verified: false         # one user report only
+  detect: 'Run command\?'
+  target:
+    - '(?m)^\s*\$\s+(?<target>\S.*?)\s*$'
+    - 'commands that start with \x27(?<target>[^\x27]+)\x27'
+
+# UNVERIFIED
+prompt_gone: []
+
+log:
+  verified: false
+  paths: []

@@ -1,0 +1,4 @@
+Do you want to approve access to "example.com"?
+
+\xe2\x80\xba 1. Yes, just this once (y)
+  2. No, and tell Codex what to do differently (esc)

@@ -1,0 +1,25 @@
+# Profile: any other terminal agent. Heuristic only, UNVERIFIED for every agent.
+name: generic
+description: Heuristic detection for unknown terminal agents (unverified)
+reader: pty
+status: unverified
+notes:
+  - "Looks for common approval wording such as [y/n] or 'Do you want to proceed?'."
+  - "Expect misses and false alarms. Add a real profile for your agent for better results."
+
+prompts:
+- id: yes-no
+  type: unknown
+  verified: false
+  target_before: true     # the command is usually printed above the question
+  detect: '(?i)(?:\[y/n\]|\(y/n\)|\(yes/no\)|\[yes/no\]|do you want to (?:proceed|allow|run)\b[^\n]*\?|allow (?:this|the) (?:command|action|edit|tool)\b)'
+  target:
+    - '(?m)^\s*(?:\$|>)\s+(?<target>\S.*?)\s*$'
+    - '(?i)(?:run|execute|command)\s*:\s*`?(?<target>[^`\n]+)`?'
+
+prompt_gone:
+  - '(?i)\b(?:approved|denied|rejected|cancell?ed)\b'
+
+log:
+  verified: false
+  paths: []
