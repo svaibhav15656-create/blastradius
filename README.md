@@ -64,17 +64,22 @@ blastradius stop
 
 ---
 
-## Technical Installation & Automated Background Provisioning
+## Zero-Cloning Quickstart
 
-`blastradius` requires zero manual environment configuration. Running the single-step PowerShell installer automates runtime and dependency provisioning in the background:
+Users can install and run `blastradius` anywhere in Windows without cloning the repository or manually installing dependencies:
 
 ```powershell
-.\install.ps1
+# 1. One-line install (auto-provisions Java 17, Tesseract OCR, and binaries in background):
+irm https://raw.githubusercontent.com/svaibhav15656-create/blastradius/main/install.ps1 | iex
+
+# 2. Start watching in the background immediately:
+blastradius start
 ```
 
-Or execute directly from a clean PowerShell session:
+Or if you have `install.ps1` locally:
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\install.ps1
+.\install.ps1
+blastradius start
 ```
 
 ### Automated Provisioning Architecture

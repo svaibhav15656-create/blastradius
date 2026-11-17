@@ -89,30 +89,47 @@ if (Test-Path $RootJar) {
     Write-Host " Using compiled target package [OK]" -ForegroundColor Green
 } else {
     Write-Host ""
-    Write-Host "      Building from source (one-time Maven package)..." -ForegroundColor Yellow
-    $mvn = Get-Command mvn.cmd -ErrorAction SilentlyContinue
-    if (-not $mvn) { $mvn = Get-Command mvn -ErrorAction SilentlyContinue }
-    if (-not $mvn -and (Test-Path "C:\Program Files\apache-maven-3.9.14\bin\mvn.cmd")) {
-        $mvnExe = "C:\Program Files\apache-maven-3.9.14\bin\mvn.cmd"
-    } elseif ($mvn) {
-        $mvnExe = $mvn.Source
-    } else {
-        Write-Host "      Installing Maven automatically via winget..." -ForegroundColor Yellow
-        try {
-            & winget install Apache.Maven --silent --accept-package-agreements --accept-source-agreements
-            $mvnExe = "mvn"
-        } catch {
-            Write-Warning "Could not auto-install Maven."
-        }
-    }
-    Push-Location $JavaDir
+    Write-Host "      Downloading pre-built standalone package from GitHub..." -ForegroundColor Yellow
+    New-Item -ItemType Directory -Force -Path $Bin | Out-Null
+    $DstJar = Join-Path $Bin $JarName
+    $downloadUrl = "https://github.com/svaibhav15656-create/blastradius/raw/main/blastradius-0.1.0-SNAPSHOT.jar"
+    $downloadOk = $false
     try {
-        & $mvnExe -q package "-DskipTests=true"
-    } finally {
-        Pop-Location
+        [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12 -bor [Net.SecurityProtocolType]::Tls13
+        Invoke-WebRequest -Uri $downloadUrl -OutFile $DstJar -UseBasicParsing
+        if ((Test-Path $DstJar) -and ((Get-Item $DstJar).Length -gt 1000000)) {
+            $SourceJar = $DstJar
+            $downloadOk = $true
+            Write-Host "      Downloaded pre-built package successfully. [OK]" -ForegroundColor Green
+        }
+    } catch {}
+
+    if (-not $downloadOk) {
+        Write-Host "      Building from source (one-time Maven package)..." -ForegroundColor Yellow
+        $mvn = Get-Command mvn.cmd -ErrorAction SilentlyContinue
+        if (-not $mvn) { $mvn = Get-Command mvn -ErrorAction SilentlyContinue }
+        if (-not $mvn -and (Test-Path "C:\Program Files\apache-maven-3.9.14\bin\mvn.cmd")) {
+            $mvnExe = "C:\Program Files\apache-maven-3.9.14\bin\mvn.cmd"
+        } elseif ($mvn) {
+            $mvnExe = $mvn.Source
+        } else {
+            Write-Host "      Installing Maven automatically via winget..." -ForegroundColor Yellow
+            try {
+                & winget install Apache.Maven --silent --accept-package-agreements --accept-source-agreements
+                $mvnExe = "mvn"
+            } catch {
+                Write-Warning "Could not auto-install Maven."
+            }
+        }
+        Push-Location $JavaDir
+        try {
+            & $mvnExe -q package "-DskipTests=true"
+        } finally {
+            Pop-Location
+        }
+        $SourceJar = $TargetJar
+        Write-Host "      Build complete. [OK]" -ForegroundColor Green
     }
-    $SourceJar = $TargetJar
-    Write-Host "      Build complete. [OK]" -ForegroundColor Green
 }
 
 # ---- 4. Install Launchers & Add to PATH ---------------------------------
@@ -123,13 +140,37 @@ $DstJar = Join-Path $Bin $JarName
 $DstCmd = Join-Path $Bin "blastradius.cmd"
 $DstPs1 = Join-Path $Bin "blastradius.ps1"
 
-Copy-Item -Force $SourceJar $DstJar
+if ($SourceJar -and ($SourceJar -ne $DstJar)) {
+    Copy-Item -Force $SourceJar $DstJar
+}
 
-# Copy native PowerShell launcher
-Copy-Item -Force (Join-Path $Root "blastradius.ps1") $DstPs1
+# Write native PowerShell launcher
+$ps1Content = @'
+# blastradius.ps1 - PowerShell launcher for blastradius
+[CmdletBinding()]
+param(
+    [Parameter(ValueFromRemainingArguments = $true)]
+    [string[]]$ArgsList
+)
+$ScriptDir = $PSScriptRoot
+$Jar = Join-Path $ScriptDir "blastradius-0.1.0-SNAPSHOT.jar"
+if (-not (Test-Path $Jar)) {
+    $Jar = Join-Path $ScriptDir "target\blastradius-0.1.0-SNAPSHOT.jar"
+}
+if (-not (Test-Path $Jar)) {
+    Write-Error "blastradius JAR not found. Run .\install.ps1 first."
+    exit 1
+}
+if ($ArgsList -and $ArgsList[0] -eq "start") {
+    Start-Process -FilePath "javaw.exe" -ArgumentList @("-Dapple.awt.UIElement=true", "-jar", "`"$Jar`"", "start") -WindowStyle Hidden
+} else {
+    & java.exe "-Dapple.awt.UIElement=true" -jar $Jar @ArgsList
+}
+'@
+[System.IO.File]::WriteAllText($DstPs1, $ps1Content, [System.Text.Encoding]::ASCII)
 
 # Write CMD batch launcher
-$cmdContent = "@echo off`r`nsetlocal`r`nset ""JAR=%~dp0$JarName""`r`njava.exe ""-Dapple.awt.UIElement=true"" -jar ""%JAR%"" %*`r`n"
+$cmdContent = "@echo off`r`nsetlocal`r`nset ""JAR=%~dp0$JarName""`r`nif ""%~1""==""start"" (`r`n    javaw.exe -Dapple.awt.UIElement=true -jar ""%JAR%"" %*`r`n) else (`r`n    java.exe  -Dapple.awt.UIElement=true -jar ""%JAR%"" %*`r`n)`r`n"
 [System.IO.File]::WriteAllText($DstCmd, $cmdContent, [System.Text.Encoding]::ASCII)
 
 # Add to User PATH persistently
