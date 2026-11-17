@@ -40,7 +40,6 @@ blastradius screen
 * **Sampled Frame Delta Detection**: Analyzes screen changes at 2 fps using pixel deltas. If no UI change occurs, CPU utilization is virtually zero.
 * **Dirty-Rectangle OCR Profiling**: Detects the exact bounding box of changed screen regions and runs local OCR exclusively on that card (~150 ms latency vs ~7500 ms for full screen).
 * **Prompt Structural Extraction**: Prints matched agent profile, extracted target command, and evaluated blast-radius security rule.
-* **Non-Flicker Persistence**: The popup remains pinned to the top-right corner until you click Allow/Deny in the IDE or until the card leaves the screen.
 
 ### 2. Silent Background Daemon Mode (`blastradius start | status | stop`)
 
