@@ -257,25 +257,27 @@ public final class ScreenReader implements Reader {
         previousFrame = img;
 
         Optional<PermissionRequest> req = Optional.empty();
+        int w = img.getWidth(), h = img.getHeight();
 
-        // Pass 1: If a specific UI region changed (e.g. card appeared), OCR only the changed bounding box (< 150ms)
-        if (changed != null && changed.width >= 120 && changed.height >= 80) {
-            BufferedImage crop = img.getSubimage(changed.x, changed.y, changed.width, changed.height);
-            String text = doOcrOn(crop);
-            if (!text.isBlank()) {
-                req = detector.detect(text);
-            }
+        // Pass 1: Check bottom-right region where IDE cards live (guarantees entire card is captured, never sliced)
+        int qx = (int)(w * 0.40);
+        int qy = (int)(h * 0.30);
+        BufferedImage rightQuadrant = img.getSubimage(qx, qy, w - qx, h - qy);
+        String text = doOcrOn(rightQuadrant);
+        if (!text.isBlank()) {
+            req = detector.detect(text);
         }
 
-        // Pass 2: If not found in changed rect, check the bottom-right quadrant where IDE/agent cards live (~250ms)
-        if (req.isEmpty()) {
-            int w = img.getWidth(), h = img.getHeight();
-            int qx = (int)(w * 0.40);
-            int qy = (int)(h * 0.30);
-            BufferedImage rightQuadrant = img.getSubimage(qx, qy, w - qx, h - qy);
-            String text = doOcrOn(rightQuadrant);
-            if (!text.isBlank()) {
-                req = detector.detect(text);
+        // Pass 2: If not found in bottom-right quadrant, check the changed region with generous padding
+        if (req.isEmpty() && changed != null && changed.width >= 80 && changed.height >= 40) {
+            int cx = Math.max(0, changed.x - 40);
+            int cy = Math.max(0, changed.y - 40);
+            int cw = Math.min(w - cx, changed.width + 80);
+            int ch = Math.min(h - cy, changed.height + 250); // generously pad downwards to never cut off options
+            BufferedImage crop = img.getSubimage(cx, cy, cw, ch);
+            String cropText = doOcrOn(crop);
+            if (!cropText.isBlank()) {
+                req = detector.detect(cropText);
             }
         }
 

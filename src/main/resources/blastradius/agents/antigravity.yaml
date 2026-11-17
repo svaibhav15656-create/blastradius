@@ -33,9 +33,9 @@ prompts:
     - '(?s)(?i)always allow\s+(?<q>[''"`])(?<target>.+?)\k<q>'
     # 3. Proceed cards format: commands that start with '<target>'
     - '(?s)commands that start with\s*[''"`](?<target>.+?)[''"`]'
-    # 4. Code block between ? and "1 Yes":
-    - '(?s)(?i)\?\s*\n\s*(?<target>(?:git|rm|Remove-Item|Stop-Process|Set-|iex|iwr|curl|cat|dir|ls|mvn|npm|cargo|node|python)[^\n]*?(?:\n[^\n]+?)*?)\s*\n\s*1\s*Yes'
-    - '(?s)(?i)\?\s*\n\s*(?<target>[^\n]+(?:\n[^\n]+)*?)\s*\n\s*1\s*Yes'
+    # 4. Code block between ? and "1 Yes" (captures all lines of multi-line wrapped commands):
+    - '(?s)(?i)\?\s*\n\s*(?<target>(?:git|rm|Remove-Item|Stop-Process|Set-|iex|iwr|curl|cat|dir|ls|mvn|npm|cargo|node|python).+?)\s*\n\s*1\s*Yes'
+    - '(?s)(?i)\?\s*\n\s*(?<target>.+?)\s*\n\s*1\s*Yes'
     - '(?m)^\s*\$\s+(?<target>\S.*?)\s*$'
 
 - id: proceed

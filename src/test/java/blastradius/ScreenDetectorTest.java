@@ -54,15 +54,39 @@ class ScreenDetectorTest {
     }
 
     @Test
-    void antigravityWrappedGitResetCardDetected() throws Exception {
-        String text = fixture("antigravity_ide_wrapped_git.txt");
+    void debugOcrExtraction() throws Exception {
+        String text = """
+Allow reset git working tree and discard changes?
+git -C "c:\\Users\\hp\\Downloads\\blastradius-
+java" reset --hard HEAD
+1  Yes, allow this time
+2  Yes, and always allow 'git -C "c:\\Users\\hp\\Downloads\\blastradius-complete\\blastradius-java" reset --hard HEAD' in this conversation
+3  Yes, and always allow 'git -C "c:\\Users\\hp\\Downloads\\blastradius-complete\\blastradius-java" reset --hard HEAD'
+4  No (tell the agent what to do instead)
+Skip  Submit
+""";
         Optional<PermissionRequest> req = detector().detect(text);
-        assertTrue(req.isPresent(), "Expected wrapped Antigravity IDE card to be detected");
-        assertTrue(req.get().target().contains("reset --hard HEAD"), "Target should contain 'reset --hard HEAD'. Got: " + req.get().target());
-        assertEquals(RequestType.SHELL_COMMAND, req.get().type());
-
+        assertTrue(req.isPresent());
+        assertEquals("git -C \"c:\\Users\\hp\\Downloads\\blastradius-complete\\blastradius-java\" reset --hard HEAD", req.get().target());
         Explanation exp = explainer().explain(req.get());
-        assertEquals(Severity.WARNING, exp.severity(), "Expected WARNING for git reset --hard");
+        assertEquals(Severity.WARNING, exp.severity());
+    }
+
+    @Test
+    void testOnlyCodeBlockMultiline() throws Exception {
+        String text = """
+Allow reset git working tree and discard changes?
+git -C "c:\\Users\\hp\\Downloads\\blastradius-
+java" reset --hard HEAD
+1  Yes, allow this time
+4  No (tell the agent what to do instead)
+Skip  Submit
+""";
+        Optional<PermissionRequest> req = detector().detect(text);
+        assertTrue(req.isPresent());
+        assertTrue(req.get().target().contains("reset --hard HEAD"), "Target: " + req.get().target());
+        Explanation exp = explainer().explain(req.get());
+        assertEquals(Severity.WARNING, exp.severity());
     }
 
     @Test

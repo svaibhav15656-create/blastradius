@@ -82,8 +82,8 @@ public final class ScreenDetector implements Reader.Detector {
             Pattern.compile("(?s)(?i)always allow\\s+(?<target>.+?)\\s+in this conversation"),
             // always allow with matched opening & closing quotes
             Pattern.compile("(?s)(?i)always allow\\s+(?<q>['\"`])(?<target>.+?)\\k<q>"),
-            // Code block between question and "1 Yes":
-            Pattern.compile("(?s)(?i)(?:Allow\\s+[^?\\n]*\\?|Do you want to proceed\\?)\\s*\\n\\s*(?<target>(?:git|rm|npm|cargo|mvn|docker|python|node|Remove-Item|Stop-Process|Set-|iex|iwr|curl|cat|dir|ls|type)[^\\n]*?(?:\\n[^\\n]+?)*?)\\s*\\n\\s*1\\s*Yes"),
+            // Code block between question and "1 Yes" (captures multi-line commands cleanly):
+            Pattern.compile("(?s)(?i)(?:Allow\\s+[^?\\n]*\\?|Do you want to proceed\\?)\\s*\\n\\s*(?<target>(?:git|rm|npm|cargo|mvn|docker|python|node|Remove-Item|Stop-Process|Set-|iex|iwr|curl|cat|dir|ls|type).+?)\\s*\\n\\s*1\\s*Yes"),
             // $ command (most terminal agents)
             Pattern.compile("(?m)^\\s*\\$\\s+(?<target>\\S.+?)\\s*$"),
             // `command` (backtick block)
