@@ -1,0 +1,8 @@
+Allow reset git working tree and discard changes?
+git -C "c:\Users\hp\Downloads\blastradius-complete\blastradius-java"
+reset --hard HEAD
+1  Yes, allow this time
+2  Yes, and always allow 'git -C "c:\Users\hp\Downloads\blastradius-complete\blastradius-java" reset --hard HEAD' in this conversation
+3  Yes, and always allow 'git -C "c:\Users\hp\Downloads\blastradius-complete\blastradius-java" reset --hard HEAD'
+4  No (tell the agent what to do instead)
+Skip  Submit
