@@ -225,6 +225,19 @@ rules:                    # Define custom local offline security rules
 ```
 
 ---
+#Point to notice
+## How to read the colors
+
+BlastRadius rates how much care a command needs. It does not tell you whether
+to run it. Sometimes you must run a RED command, and that is your decision.
+
+- **GREEN (safe):** no known risks found. Normal development activity.
+- **YELLOW (warning):** worth a closer look. It touches secrets, installs
+  software, or changes things outside the project.
+- **RED (critical):** could cause serious or hard-to-reverse harm. Check the
+  target, the path and your backups before you click Allow.
+
+The final call is always yours, inside your agent's own approval prompt.
 
 ## Roadmap
 
