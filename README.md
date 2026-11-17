@@ -64,23 +64,47 @@ blastradius stop
 
 ---
 
-## Zero-Cloning Quickstart
+## Installation Options
 
-Users can install and run `blastradius` anywhere in Windows without cloning the repository or manually installing dependencies:
+You can install `blastradius` using either of the two options below:
+
+### Option 1: Direct Script Execution (If you downloaded `install.ps1` or cloned the repo)
+**What it is for:** For users who already have `install.ps1` in their current folder (e.g. after downloading the ZIP from GitHub or cloning the repository).
 
 ```powershell
-# 1. One-line install (auto-provisions Java 17, Tesseract OCR, and binaries in background):
+# Step 1: Run the local installer script
+.\install.ps1
+
+# Step 2: Start the background watcher
+blastradius start
+```
+
+**What these commands do:**
+* `.\install.ps1`:
+  * Automatically checks your system for Java 17+ and Tesseract OCR. If either is missing, it silently installs them in the background via Windows `winget`.
+  * Deploys the standalone `blastradius` binary package into `~/.blastradius/bin`.
+  * Registers `blastradius` into your Windows system PATH and immediately updates your current terminal session (no restart needed).
+* `blastradius start`: Launches the detached background watcher daemon (`javaw.exe`) so AI agent permission prompts are monitored with zero console window footprint.
+
+---
+
+### Option 2: One-Liner Install (No downloading or cloning required)
+**What it is for:** For users who want a completely automated setup from any folder without opening a web browser or manually downloading files.
+
+```powershell
+# Step 1: Download and execute the installer in a single command
 irm https://raw.githubusercontent.com/svaibhav15656-create/blastradius/main/install.ps1 | iex
 
-# 2. Start watching in the background immediately:
+# Step 2: Start the background watcher
 blastradius start
 ```
 
-Or if you have `install.ps1` locally:
-```powershell
-.\install.ps1
-blastradius start
-```
+**What these commands do:**
+* `irm https://... | iex`:
+  * `irm` (`Invoke-RestMethod`) downloads the latest `install.ps1` directly from GitHub into memory.
+  * `| iex` (`Invoke-Expression`) executes the script in one click without opening a web browser.
+  * Automatically provisions Java 17 and Tesseract OCR in the background, configures your PATH, and prepares `blastradius` for use.
+* `blastradius start`: Spawns the background watcher daemon immediately so you can start coding with your AI agent right away.
 
 ### Automated Provisioning Architecture
 
