@@ -50,6 +50,12 @@ public final class ProfileDetector implements Reader.Detector {
             Matcher m = p.matcher(slice);
             if (m.find()) {
                 target = m.group("target").replaceAll("[\\r\\n]+", " ").replaceAll("[ \\t]+", " ").strip();
+                // Strip surrounding single or double quotes if present
+                if ((target.startsWith("'") && target.endsWith("'")) ||
+                    (target.startsWith("\"") && target.endsWith("\"")) ||
+                    (target.startsWith("`") && target.endsWith("`"))) {
+                    target = target.substring(1, target.length() - 1).strip();
+                }
                 break;
             }
             if (best.targetBefore()) {
@@ -61,6 +67,11 @@ public final class ProfileDetector implements Reader.Detector {
                 }
                 if (last != null) {
                     target = last.replaceAll("[\\r\\n]+", " ").replaceAll("[ \\t]+", " ").strip();
+                    if ((target.startsWith("'") && target.endsWith("'")) ||
+                        (target.startsWith("\"") && target.endsWith("\"")) ||
+                        (target.startsWith("`") && target.endsWith("`"))) {
+                        target = target.substring(1, target.length() - 1).strip();
+                    }
                     break;
                 }
             }

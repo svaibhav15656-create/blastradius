@@ -78,10 +78,12 @@ public final class ScreenDetector implements Reader.Detector {
     // --------------------------------------------------------
 
     private static final List<Pattern> COMMAND_EXTRACTORS = List.of(
+            // always allow ... in this conversation
+            Pattern.compile("(?s)(?i)always allow\\s+(?<target>.+?)\\s+in this conversation"),
+            // always allow with matched opening & closing quotes
+            Pattern.compile("(?s)(?i)always allow\\s+(?<q>['\"`])(?<target>.+?)\\k<q>"),
             // Code block between question and "1 Yes":
             Pattern.compile("(?s)(?i)(?:Allow\\s+[^?\\n]*\\?|Do you want to proceed\\?)\\s*\\n\\s*(?<target>(?:git|rm|npm|cargo|mvn|docker|python|node|Remove-Item|Stop-Process|Set-|iex|iwr|curl|cat|dir|ls|type)[^\\n]*?(?:\\n[^\\n]+?)*?)\\s*\\n\\s*1\\s*Yes"),
-            // always allow 'command' (Antigravity IDE card, even if wrapped)
-            Pattern.compile("(?s)(?i)always allow\\s*['\"`](?<target>.+?)['\"`](?:\\s+in this conversation)?"),
             // $ command (most terminal agents)
             Pattern.compile("(?m)^\\s*\\$\\s+(?<target>\\S.+?)\\s*$"),
             // `command` (backtick block)
@@ -173,7 +175,13 @@ public final class ScreenDetector implements Reader.Detector {
         for (Pattern p : COMMAND_EXTRACTORS) {
             Matcher m = p.matcher(window);
             if (m.find()) {
-                return m.group("target").replaceAll("[\\r\\n]+", " ").replaceAll("[ \\t]+", " ").strip();
+                String t = m.group("target").replaceAll("[\\r\\n]+", " ").replaceAll("[ \\t]+", " ").strip();
+                if ((t.startsWith("'") && t.endsWith("'")) ||
+                    (t.startsWith("\"") && t.endsWith("\"")) ||
+                    (t.startsWith("`") && t.endsWith("`"))) {
+                    t = t.substring(1, t.length() - 1).strip();
+                }
+                return t;
             }
         }
         return "";
