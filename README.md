@@ -225,8 +225,7 @@ rules:                    # Define custom local offline security rules
 ```
 
 ---
-#Point to notice
-## How to read the colors
+## Point to notice: how to read the colors
 
 BlastRadius rates how much care a command needs. It does not tell you whether
 to run it. Sometimes you must run a RED command, and that is your decision.
