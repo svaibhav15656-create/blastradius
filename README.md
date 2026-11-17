@@ -72,12 +72,16 @@ You can install `blastradius` using either of the two options below:
 **What it is for:** For users who already have `install.ps1` in their current folder (e.g. after downloading the ZIP from GitHub or cloning the repository).
 
 ```powershell
-# Step 1: Run the local installer script
+# Step 1: Run the local installer script (adds blastradius to your global PATH)
 .\install.ps1
 
-# Step 2: Start the background watcher
+# Step 2: Start the background watcher (or run 'blastradius screen' for live mode)
 blastradius start
 ```
+
+> [!TIP]
+> **PowerShell Path Note:** Running `.\install.ps1` adds `blastradius` permanently to your Windows `PATH` so you can run `blastradius screen` from any terminal. If you want to run it directly inside this folder *before* running `.\install.ps1`, PowerShell requires the `.\` prefix:  
+> `.\blastradius.ps1 screen` (or `.\blastradius.cmd screen`)
 
 **What these commands do:**
 * `.\install.ps1`:
