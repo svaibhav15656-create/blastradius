@@ -91,7 +91,20 @@ if (Test-Path $RootJar) {
     Write-Host ""
     Write-Host "      Building from source (one-time Maven package)..." -ForegroundColor Yellow
     $mvn = Get-Command mvn.cmd -ErrorAction SilentlyContinue
-    $mvnExe = if ($mvn) { $mvn.Source } else { "C:\Program Files\apache-maven-3.9.14\bin\mvn.cmd" }
+    if (-not $mvn) { $mvn = Get-Command mvn -ErrorAction SilentlyContinue }
+    if (-not $mvn -and (Test-Path "C:\Program Files\apache-maven-3.9.14\bin\mvn.cmd")) {
+        $mvnExe = "C:\Program Files\apache-maven-3.9.14\bin\mvn.cmd"
+    } elseif ($mvn) {
+        $mvnExe = $mvn.Source
+    } else {
+        Write-Host "      Installing Maven automatically via winget..." -ForegroundColor Yellow
+        try {
+            & winget install Apache.Maven --silent --accept-package-agreements --accept-source-agreements
+            $mvnExe = "mvn"
+        } catch {
+            Write-Warning "Could not auto-install Maven."
+        }
+    }
     Push-Location $JavaDir
     try {
         & $mvnExe -q package "-DskipTests=true"
