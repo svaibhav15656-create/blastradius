@@ -283,9 +283,9 @@ public final class ScreenReader implements Reader {
 
         // Pass 3: Fallback to full screen if still not found and a prompt was previously shown (to confirm dismissal)
         if (req.isEmpty() && promptShown) {
-            String text = doOcrOn(img);
-            if (!text.isBlank()) {
-                req = detector.detect(text);
+            String fullText = doOcrOn(img);
+            if (!fullText.isBlank()) {
+                req = detector.detect(fullText);
             }
         }
 
