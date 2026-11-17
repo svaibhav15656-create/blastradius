@@ -225,7 +225,7 @@ rules:                    # Define custom local offline security rules
 ```
 
 ---
-## Point to notice: how to read the colors
+## Point to notice, how to read the colors
 
 BlastRadius rates how much care a command needs. It does not tell you whether
 to run it. Sometimes you must run a RED command, and that is your decision.
@@ -235,6 +235,7 @@ to run it. Sometimes you must run a RED command, and that is your decision.
   software, or changes things outside the project.
 - **RED (critical):** could cause serious or hard-to-reverse harm. Check the
   target, the path and your backups before you click Allow.
+- **No screenshots or OCR text are stored by the watcher. The background daemon keeps a small status log at ~/.blastradius/daemon.log
 
 The final call is always yours, inside your agent's own approval prompt.
 
