@@ -34,7 +34,7 @@ import javax.swing.Timer;
  */
 public final class Popup {
 
-    private static final int WIDTH_PX = 360;
+    private static final int WIDTH_PX = 460;
     private static JWindow window;   // EDT only
     private static Timer timer;      // EDT only
 
@@ -80,17 +80,18 @@ public final class Popup {
         w.setAlwaysOnTop(true);
 
         JPanel root = new JPanel(new BorderLayout());
-        root.setBorder(BorderFactory.createLineBorder(head.darker(), 1));
+        root.setBorder(BorderFactory.createLineBorder(head.darker(), 2));
 
-        // header: colour = severity
+        // header: colour = severity (larger, higher contrast for recordings)
         JPanel header = new JPanel(new BorderLayout());
         header.setBackground(head);
-        header.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 8));
+        header.setBorder(BorderFactory.createEmptyBorder(8, 14, 8, 12));
         JLabel title = new JLabel(label(ex.severity()) + "  \u00B7  " + typeLabel(req));
         title.setForeground(headText);
-        title.setFont(title.getFont().deriveFont(Font.BOLD, 13f));
+        title.setFont(title.getFont().deriveFont(Font.BOLD, 15f));
         JLabel x = new JLabel("\u2715");
         x.setForeground(headText);
+        x.setFont(x.getFont().deriveFont(Font.BOLD, 15f));
         x.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         x.addMouseListener(new MouseAdapter() {
             @Override
@@ -101,10 +102,10 @@ public final class Popup {
         header.add(title, BorderLayout.WEST);
         header.add(x, BorderLayout.EAST);
 
-        // body
+        // body (generous padding, larger readable fonts for video recordings)
         JPanel body = new JPanel();
         body.setLayout(new BoxLayout(body, BoxLayout.Y_AXIS));
-        body.setBorder(BorderFactory.createEmptyBorder(8, 10, 10, 10));
+        body.setBorder(BorderFactory.createEmptyBorder(12, 14, 12, 14));
         body.setBackground(new Color(0xFA, 0xFA, 0xFA));
         if (!req.target().isBlank()) {
             body.add(section("Target", req.target(), true));
@@ -115,6 +116,12 @@ public final class Popup {
             body.add(section("Affects", String.join("  \u00B7  ", ex.affects()), false));
         }
 
+        // privacy assurance footer
+        JLabel privacyFooter = new JLabel("<html><span style='font-size:10px; color:#888888;'>&#128274; 100% offline &middot; memory-only &middot; zero network calls</span></html>");
+        privacyFooter.setBorder(BorderFactory.createEmptyBorder(4, 0, 0, 0));
+        privacyFooter.setAlignmentX(0f);
+        body.add(privacyFooter);
+
         root.add(header, BorderLayout.NORTH);
         root.add(body, BorderLayout.CENTER);
         w.setContentPane(root);
@@ -122,7 +129,7 @@ public final class Popup {
 
         Rectangle area = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
         // Top-right corner so it never covers bottom-right IDE approval cards or terminal prompts.
-        w.setLocation(area.x + area.width - w.getWidth() - 24, area.y + 32);
+        w.setLocation(area.x + area.width - w.getWidth() - 28, area.y + 36);
         w.setVisible(true);
         window = w;
 
@@ -146,10 +153,14 @@ public final class Popup {
 
     private static JLabel section(String heading, String text, boolean mono) {
         String shown = text.length() > 300 ? text.substring(0, 300) + "\u2026" : text;
-        String font = mono ? "font-family:monospace;" : "";
-        JLabel l = new JLabel("<html><body style='width:" + (WIDTH_PX - 40) + "px;" + font + "'>"
-                + "<b>" + escape(heading) + "</b><br>" + escape(shown) + "</body></html>");
-        l.setBorder(BorderFactory.createEmptyBorder(0, 0, 8, 0));
+        String style = mono 
+                ? "font-family:Consolas, 'Courier New', monospace; font-size:12px; background:#EEEEEE; padding:4px 6px;" 
+                : "font-family:sans-serif; font-size:13px; color:#222222; line-height:1.3;";
+        JLabel l = new JLabel("<html><body style='width:" + (WIDTH_PX - 44) + "px;'>"
+                + "<div style='font-family:sans-serif; font-size:11px; font-weight:bold; color:#666666; margin-bottom:2px;'>" 
+                + escape(heading).toUpperCase() + "</div>"
+                + "<div style='" + style + "'>" + escape(shown) + "</div></body></html>");
+        l.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
         l.setAlignmentX(0f);
         return l;
     }
