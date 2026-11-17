@@ -2,6 +2,7 @@ package blastradius;
 
 import blastradius.agents.AgentProfile;
 import blastradius.agents.ProfileDetector;
+import blastradius.models.Explanation;
 import blastradius.models.PermissionRequest;
 import blastradius.models.RequestType;
 import blastradius.models.Severity;
@@ -50,6 +51,18 @@ class ScreenDetectorTest {
         assertTrue(req.isPresent(), "Expected real Antigravity IDE card to be detected");
         assertEquals("git status", req.get().target(), "Target should be 'git status'");
         assertEquals(RequestType.SHELL_COMMAND, req.get().type());
+    }
+
+    @Test
+    void antigravityWrappedGitResetCardDetected() throws Exception {
+        String text = fixture("antigravity_ide_wrapped_git.txt");
+        Optional<PermissionRequest> req = detector().detect(text);
+        assertTrue(req.isPresent(), "Expected wrapped Antigravity IDE card to be detected");
+        assertTrue(req.get().target().contains("reset --hard HEAD"), "Target should contain 'reset --hard HEAD'. Got: " + req.get().target());
+        assertEquals(RequestType.SHELL_COMMAND, req.get().type());
+
+        Explanation exp = explainer().explain(req.get());
+        assertEquals(Severity.WARNING, exp.severity(), "Expected WARNING for git reset --hard");
     }
 
     @Test

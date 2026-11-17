@@ -19,7 +19,7 @@ prompts:
   verified: true
   detect: '(?i)Allow\s+sandbox\s+bypass\b'
   target:
-    - '(?i)always allow \x27(?<target>[^\x27\n]+)\x27'
+    - '(?s)(?i)always allow\s*[''"`](?<target>.+?)[''"`]'
     - '(?m)^\s*\$\s+(?<target>\S.*?)\s*$'
 
 - id: ide-approval-card
@@ -27,19 +27,20 @@ prompts:
   verified: true
   detect: '(?i)(?:Allow\s+(?:run\s+)?[^?\n]*\?|Do\s+you\s+want\s+to\s+proceed\?|Run\s+command\?)'
   target:
-    - '(?i)always allow \x27(?<target>[^\x27\n]+)\x27'
-    - '(?i)always allow (?<target>[^\n]+) in this conversation'
-    - 'commands that start with \x27(?<target>[^\x27]+)\x27'
+    - '(?s)(?i)\?\s*\n\s*(?<target>(?:git|rm|Remove-Item|Stop-Process|Set-|iex|iwr|curl|cat|dir|ls|mvn|npm|cargo|node|python)[^\n]*?(?:\n[^\n]+?)*?)\s*\n\s*1\s*Yes'
+    - '(?s)(?i)always allow\s*[''"`](?<target>.+?)[''"`]'
+    - '(?s)(?i)always allow\s+(?<target>.+?)\s+in this conversation'
+    - '(?s)commands that start with\s*[''"`](?<target>.+?)[''"`]'
+    - '(?s)(?i)\?\s*\n\s*(?<target>[^\n]+(?:\n[^\n]+)*?)\s*\n\s*1\s*Yes'
     - '(?m)^\s*\$\s+(?<target>\S.*?)\s*$'
-    - '(?m)^[ \t]*(?<target>[a-zA-Z0-9_.-]+(?:\s+[\S]+)*)\s*\n\s*1\s+Yes'
 
 - id: proceed
   type: shell_command
   verified: true
   detect: '(?i)Do\s+you\s+want\s+to\s+proceed\?'
   target:
-    - '(?i)always allow \x27(?<target>[^\x27\n]+)\x27'
-    - 'commands that start with \x27(?<target>[^\x27]+)\x27'
+    - '(?s)(?i)always allow\s*[''"`](?<target>.+?)[''"`]'
+    - '(?s)commands that start with\s*[''"`](?<target>.+?)[''"`]'
     - '(?m)^\s*\$\s+(?<target>\S.*?)\s*$'
 
 prompt_gone:

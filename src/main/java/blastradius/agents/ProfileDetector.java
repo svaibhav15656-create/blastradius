@@ -49,7 +49,7 @@ public final class ProfileDetector implements Reader.Detector {
         for (Pattern p : best.targets()) {
             Matcher m = p.matcher(slice);
             if (m.find()) {
-                target = m.group("target").strip();
+                target = m.group("target").replaceAll("[\\r\\n]+", " ").replaceAll("[ \\t]+", " ").strip();
                 break;
             }
             if (best.targetBefore()) {
@@ -60,7 +60,7 @@ public final class ProfileDetector implements Reader.Detector {
                     last = b.group("target");
                 }
                 if (last != null) {
-                    target = last.strip();
+                    target = last.replaceAll("[\\r\\n]+", " ").replaceAll("[ \\t]+", " ").strip();
                     break;
                 }
             }

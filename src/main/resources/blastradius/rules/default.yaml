@@ -88,7 +88,7 @@ rules:
 
 - id: git-force-push-protected
   applies_to: [shell]
-  pattern: '(?=[^;&|]*(?:--force(?!-with-lease)|\s-f(?:\s|$)))\bgit\s+push\b[^;&|]*\b(?:main|master|production|prod|release)\b'
+  pattern: '(?=[^;&|]*(?:--force(?!-with-lease)|\s-f(?:\s|$)))\bgit\b[^;&|]*\bpush\b[^;&|]*\b(?:main|master|production|prod|release)\b'
   severity: critical
   what: Forces your local history over the shared main branch on the remote.
   why: Other people's commits on that branch can be erased for everyone, and it is hard to undo.
@@ -156,29 +156,29 @@ rules:
 # ----------------------------------------------------------------- warning
 - id: git-force-push
   applies_to: [shell]
-  pattern: '\bgit\s+push\b[^;&|]*(?:--force(?!-with-lease)\b|\s-f(?:\s|$)|\s\+\S)'
+  pattern: '\bgit\b[^;&|]*\bpush\b[^;&|]*(?:--force(?!-with-lease)\b|\s-f(?:\s|$)|\s\+\S)'
   severity: warning
   what: Overwrites the remote branch with your local version.
   why: Commits that only exist on the remote can be lost. A safer option is --force-with-lease.
   affects: [history, network]
   examples:
-    match: ['git push --force origin feature', 'git push -f', 'git push origin +feature']
+    match: ['git push --force origin feature', 'git push -f', 'git push origin +feature', 'git -C "repo" push -f']
     no_match: ['git push origin main', 'git push --force-with-lease', 'git push -u origin feat']
 
 - id: git-reset-hard
   applies_to: [shell]
-  pattern: '\bgit\s+reset\b[^;&|]*--hard\b'
+  pattern: '\bgit\b[^;&|]*\breset\b[^;&|]*--hard\b'
   severity: warning
   what: Throws away all uncommitted changes and moves the branch to another commit.
   why: Work that was never committed cannot be recovered afterwards.
   affects: [files, history]
   examples:
-    match: ['git reset --hard', 'git reset --hard origin/main']
+    match: ['git reset --hard', 'git reset --hard origin/main', 'git -C "C:\project" reset --hard HEAD']
     no_match: ['git reset --soft HEAD~1', 'git reset HEAD file.txt']
 
 - id: git-clean-force
   applies_to: [shell]
-  pattern: '\bgit\s+clean\b[^;&|]*\s-[a-z]*f'
+  pattern: '\bgit\b[^;&|]*\bclean\b[^;&|]*\s-[a-z]*f'
   severity: warning
   what: Deletes files in the project that git is not tracking.
   why: Untracked files, such as new work or local notes, are not in git so they cannot be restored from it.
@@ -189,7 +189,7 @@ rules:
 
 - id: git-history-rewrite
   applies_to: [shell]
-  pattern: '\bgit\s+(?:filter-branch|filter-repo|rebase|reflog\s+expire|commit\s+[^;&|]*--amend|gc\s+[^;&|]*--prune=now)\b'
+  pattern: '\bgit\b[^;&|]*\b(?:filter-branch|filter-repo|rebase|reflog\s+expire|commit\s+[^;&|]*--amend|gc\s+[^;&|]*--prune=now)\b'
   severity: warning
   what: Rewrites or cleans up git history.
   why: Old commits change or disappear, which can cause trouble for teammates if they were already shared.
@@ -681,7 +681,7 @@ rules:
 
 - id: win-safe-read-only
   applies_to: [shell_command]
-  pattern: '(?i)^\s*(?:dir|Get-ChildItem|gci|ls|Get-Location|gl|pwd|Get-Item\b|Get-Content\b|gc\b|cat\b|type\b|whoami|hostname|ipconfig\b|systeminfo\b|Get-Process\b|Get-Service\b|Test-Path\b|Write-Host\b|echo\b|git\s+(?:status|log|diff|show|branch|fetch)|npm\s+(?:test|run\s+(?:test|lint|build))|cargo\s+(?:test|check|build)|mvn\s+(?:-q\s+)?(?:test|package)|dotnet\s+(?:build|test|run))(?:\s+[\w./\\=:@"$-]+)*\s*$'
+  pattern: '(?i)^\s*(?:dir|Get-ChildItem|gci|ls|Get-Location|gl|pwd|Get-Item\b|Get-Content\b|gc\b|cat\b|type\b|whoami|hostname|ipconfig\b|systeminfo\b|Get-Process\b|Get-Service\b|Test-Path\b|Write-Host\b|echo\b|git\b[^;&|]*\b(?:status|log|diff|show|branch|fetch)|npm\s+(?:test|run\s+(?:test|lint|build))|cargo\s+(?:test|check|build)|mvn\s+(?:-q\s+)?(?:test|package)|dotnet\s+(?:build|test|run))(?:\s+[\w./\\=:@"$-]+)*\s*$'
   severity: safe
   what: Runs a common Windows or PowerShell command that only reads state or runs project tests and builds.
   why: These commands do not change anything outside the project, so there is nothing unusual to flag.

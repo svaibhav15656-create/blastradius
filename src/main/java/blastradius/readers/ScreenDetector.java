@@ -78,8 +78,10 @@ public final class ScreenDetector implements Reader.Detector {
     // --------------------------------------------------------
 
     private static final List<Pattern> COMMAND_EXTRACTORS = List.of(
-            // always allow 'command' (Antigravity IDE card)
-            Pattern.compile("(?i)always allow\\s*['\"`](?<target>[^'\"`\\n]+)['\"`]"),
+            // Code block between question and "1 Yes":
+            Pattern.compile("(?s)(?i)(?:Allow\\s+[^?\\n]*\\?|Do you want to proceed\\?)\\s*\\n\\s*(?<target>(?:git|rm|npm|cargo|mvn|docker|python|node|Remove-Item|Stop-Process|Set-|iex|iwr|curl|cat|dir|ls|type)[^\\n]*?(?:\\n[^\\n]+?)*?)\\s*\\n\\s*1\\s*Yes"),
+            // always allow 'command' (Antigravity IDE card, even if wrapped)
+            Pattern.compile("(?s)(?i)always allow\\s*['\"`](?<target>.+?)['\"`](?:\\s+in this conversation)?"),
             // $ command (most terminal agents)
             Pattern.compile("(?m)^\\s*\\$\\s+(?<target>\\S.+?)\\s*$"),
             // `command` (backtick block)
@@ -87,9 +89,8 @@ public final class ScreenDetector implements Reader.Detector {
             // Command: <value>
             Pattern.compile("(?i)(?:Command|Run|Execute|Cmd)\\s*:\\s*['\"`]?(?<target>[^'\"`\\n]{3,})['\"`]?"),
             // Quoted command after "commands that start with"
-            Pattern.compile("(?i)commands that start with\\s*['\"`](?<target>[^'\"`\\n]+)['\"`]"),
-            // Indented code block: 4+ spaces / tab
-            Pattern.compile("(?m)^[ \\t]{4,}(?<target>\\S.{2,})$"));
+            Pattern.compile("(?s)(?i)commands that start with\\s*['\"`](?<target>.+?)['\"`]")
+    );
 
     // ---- Prompt-gone patterns
     // ---------------------------------------------------------------
@@ -172,7 +173,7 @@ public final class ScreenDetector implements Reader.Detector {
         for (Pattern p : COMMAND_EXTRACTORS) {
             Matcher m = p.matcher(window);
             if (m.find()) {
-                return m.group("target").strip();
+                return m.group("target").replaceAll("[\\r\\n]+", " ").replaceAll("[ \\t]+", " ").strip();
             }
         }
         return "";
